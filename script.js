@@ -58,9 +58,7 @@ closeFormBtn.addEventListener("click", () => {
 })
 
 addBookmarkFormBtn.addEventListener("click", () =>{
-
-  
-  const existingBookmarks = JSON.parse(localStorage.getItem("bookmarks")) ? JSON.parse(localStorage.getItem("bookmarks")) : [];
+const existingBookmarks = JSON.parse(localStorage.getItem("bookmarks")) ? JSON.parse(localStorage.getItem("bookmarks")) : [];
   
   const bookmarkObj = {
     name: nameInput.value,
@@ -76,5 +74,59 @@ addBookmarkFormBtn.addEventListener("click", () =>{
     url.value = ''
     
   displayOrCloseForm();
+  
+}) 
+
+function displayOrHideCategory(){
+    mainSection.classList.toggle("hidden");
+    bookmarkListSection.classList.toggle("hidden")
+}
+
+viewCategoryBtn.addEventListener("click", () => {
+  const bookmarkList = getBookmarks();
+  const selectedCategory = categoryDropdown.value;
+  
+  categoryName.textContent = selectedCategory; 
+  
+  const filteredList = bookmarkList.filter(bookmark => bookmark.category === selectedCategory)
+  
+  if(filteredList.length === 0){
+    categoryList.innerHTML = "<p>No Bookmarks Found</p>"
+  } else {
+    categoryList.innerHTML = "";
+    
+    filteredList.forEach(bookmark =>{
+    categoryList.innerHTML += `
+    <input type="radio" name="category-radio" id="${bookmark.name}" value="${bookmark.name}">
+    <label for="${bookmark.name}">
+      <a href="${bookmark.url}" target="_blank">${bookmark.name}</a>
+    </label>`
+    })
+  }
+    
+  displayOrHideCategory();  
+  })   
+
+closeListBtn.addEventListener("click", () => {
+  displayOrHideCategory()
+})
+
+deleteBookmarkBtn.addEventListener("click", (e) => {
+  const selectedRadio = categoryList.querySelector('input[type="radio"]:checked');
+  
+  if(!selectedRadio){
+    alert("Please select a bookmark to delete.")
+    return
+  }
+  
+  
+  const bookmarkName = selectedRadio.value;
+  const currentCategory = categoryDropdown.value;
+  let bookmarks = getBookmarks();
+  bookmarks = bookmarks.filter(bm => !(bm.name === bookmarkName && bm.category === currentCategory));
+  
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks))
+  
+  viewCategoryBtn.click();
   
 })
